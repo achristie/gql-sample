@@ -5,7 +5,9 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/achristie/gql-sample/graph/generated"
@@ -66,7 +68,28 @@ func (r *queryResolver) Characters(ctx context.Context, cliqueType model.CliqueT
 }
 
 func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage, error) {
-	panic(fmt.Errorf("not implemented"))
+	var o *model.WRDOutage
+	os, err := NewOutageService()
+
+	if err != nil {
+		fmt.Errorf("could not create an outage service %s", err)
+	}
+
+	req, err := os.Get()
+
+	if err != nil {
+		fmt.Errorf("error fetching from outage service, %s", err)
+	}
+
+	fmt.Print(ioutil.ReadAll(req.Body))
+
+	err = json.NewDecoder(req.Body).Decode(&o)
+
+	if err != nil {
+		fmt.Errorf("could not conver to json, %s", err)
+	}
+
+	return o, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

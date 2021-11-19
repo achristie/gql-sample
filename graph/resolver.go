@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"log"
 	"net/http"
 	"net/url"
 
@@ -38,16 +37,13 @@ func NewOutageService() (*OutageService, error) {
 
 // outage.get(id=id, )
 
-func (o *OutageService) Get(req *http.Request) (*http.Response, error) {
-	log.Printf("[%s] %s", req.Method, req.URL)
-
-	resp, err := o.httpClient.Do(req)
+func (o *OutageService) Get() (*http.Response, error) {
+	resp, err := o.httpClient.Get(o.baseUrl.String())
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
+	// defer resp.Body.Close()
 
 	return resp, nil
 }
