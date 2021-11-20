@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"strconv"
 
 	"github.com/achristie/gql-sample/graph/generated"
@@ -68,28 +67,53 @@ func (r *queryResolver) Characters(ctx context.Context, cliqueType model.CliqueT
 }
 
 func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage, error) {
-	var o *model.WRDOutage
-	os, err := NewOutageService()
+	// var o *model.WRDOutage
+	client, err := NewClient(
+		"https://api.platts.com/refinery-data/v1/outage-alerts?PageSize=2",
+		"")
 
 	if err != nil {
-		fmt.Errorf("could not create an outage service %s", err)
+		fmt.Errorf("error creating client %s", err)
 	}
 
-	req, err := os.Get()
+	resp, err := client.Get()
+	if err != nil {
+		fmt.Errorf("Problem fetching data, %s", err)
+	}
+
+	// bytes, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	fmt.Errorf("Error converting data to bytes, %s", err)
+	// }
+
+	var obj map[string]json.RawMessage
+	err = json.NewDecoder(resp.Body).Decode(&obj)
 
 	if err != nil {
-		fmt.Errorf("error fetching from outage service, %s", err)
+		fmt.Errorf("Problem decoding json, %v", err)
 	}
 
-	fmt.Print(ioutil.ReadAll(req.Body))
+	results := obj["results"]
 
-	err = json.NewDecoder(req.Body).Decode(&o)
+	model := &model.WRDOutage{}
+	err = json.Unmarshal(results, &model)
 
 	if err != nil {
-		fmt.Errorf("could not conver to json, %s", err)
+		fmt.Errorf("Error unmarshaling raw json, %v", err)
 	}
 
-	return o, nil
+	fmt.Printf("%s, %s, %s, %s", results['outagejId'], results[''])
+
+	// model := &model.WRDOutage{}
+	// err = json.NewDecoder(resp.Body).Decode(model)
+
+	// if err != nil {
+	// 	fmt.Errorf("issue decoding json, %s", err)
+	// }
+
+	// fmt.Printf("data: %v", model)
+
+	return model, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

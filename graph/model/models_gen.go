@@ -23,7 +23,7 @@ type CharacterInput struct {
 }
 
 type WRDOutage struct {
-	ID           string  `json:"id"`
+	ID           string  `json:"outageId"`
 	CountryName  *string `json:"countryName"`
 	CityName     *string `json:"cityName"`
 	RefineryName *string `json:"refineryName"`

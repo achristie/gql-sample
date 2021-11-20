@@ -12,38 +12,45 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	CharacterStore map[string]model.Character
-	OutageService  OutageService
+	CharacterStore   map[string]model.Character
+	PlattsApiService HTTPClient
 }
 
 type HTTPClient interface {
-	Fetch(req *http.Request) (*http.Response, error)
+	Do(req *http.Request) (*http.Response, error)
 }
 
-type OutageService struct {
-	baseUrl    *url.URL
-	httpClient *http.Client
+type Client struct {
+	baseURL    *url.URL
+	httpClient HTTPClient
+	apiKey     string
 }
 
-func NewOutageService() (*OutageService, error) {
-	u, _ := url.Parse("https://api.platts.com/refinery-data/v1/outage-alerts")
-	o := &OutageService{
-		baseUrl:    u,
-		httpClient: http.DefaultClient,
+func NewClient(baseURL string, apiKey string) (*Client, error) {
+	url, err := url.Parse(baseURL)
+
+	if err != nil {
+		return &Client{}, err
 	}
-
-	return o, nil
+	c := &Client{
+		baseURL:    url,
+		httpClient: http.DefaultClient,
+		apiKey:     apiKey,
+	}
+	return c, nil
 }
 
-// outage.get(id=id, )
-
-func (o *OutageService) Get() (*http.Response, error) {
-	resp, err := o.httpClient.Get(o.baseUrl.String())
+func (c *Client) Get() (resp *http.Response, err error) {
+	req, err := http.NewRequest("GET", c.baseURL.String(), nil)
 
 	if err != nil {
 		return nil, err
 	}
-	// defer resp.Body.Close()
 
-	return resp, nil
+	return c.Do(req)
+}
+
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
+	req.Header.Add("appkey", c.apiKey)
+	return c.httpClient.Do(req)
 }
