@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/achristie/gql-sample/graph/generated"
 	"github.com/achristie/gql-sample/graph/model"
 )
@@ -68,6 +69,10 @@ func (r *queryResolver) Characters(ctx context.Context, cliqueType model.CliqueT
 
 func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage, error) {
 	// var o *model.WRDOutage
+	fields := graphql.CollectAllFields(ctx)
+	for _, f := range fields {
+		fmt.Println(f)
+	}
 	client, err := NewClient(
 		"https://api.platts.com/refinery-data/v1/outage-alerts?PageSize=2",
 		"")
@@ -95,6 +100,7 @@ func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage
 
 	results := obj["results"]
 
+	fmt.Printf("%v", results)
 	model := &model.WRDOutage{}
 	err = json.Unmarshal(results, &model)
 
@@ -102,7 +108,7 @@ func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage
 		fmt.Errorf("Error unmarshaling raw json, %v", err)
 	}
 
-	fmt.Printf("%s, %s, %s, %s", results['outagejId'], results[''])
+	// fmt.Printf("%s, %s, %s, %s", results['outagejId'], results[''])
 
 	// model := &model.WRDOutage{}
 	// err = json.NewDecoder(resp.Body).Decode(model)

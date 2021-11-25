@@ -22,7 +22,7 @@ type HTTPClient interface {
 
 type Client struct {
 	baseURL    *url.URL
-	httpClient HTTPClient
+	httpClient *http.Client
 	apiKey     string
 }
 
@@ -54,3 +54,20 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Add("appkey", c.apiKey)
 	return c.httpClient.Do(req)
 }
+
+// func (c *Client) RoundTrip(r *http.Request) (*http.Response, error) {
+// 	resp, err := c.httpClient.Transport.RoundTrip(r)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var obj map[string]json.RawMessage
+// 	err = json.NewDecoder(resp.Body).Decode(&obj)
+
+// 	if err != nil {
+// 		fmt.Errorf("Error decoding json %v", err)
+// 	}
+
+// 	fmt.Printf("%v", obj["results"])
+// 	return resp, nil
+// }
