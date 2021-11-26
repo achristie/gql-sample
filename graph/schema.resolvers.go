@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -73,6 +74,8 @@ func (r *queryResolver) Outage(ctx context.Context, id string) (*model.WRDOutage
 	for _, f := range fields {
 		fmt.Println(f)
 	}
+
+	log.Println(ctx.Value("appkey"))
 	client, err := NewClient(
 		"https://api.platts.com/refinery-data/v1/outage-alerts?PageSize=2",
 		"")
